@@ -1,0 +1,32 @@
+name: Download Large File and Upload to GitHub LFS
+
+on:
+  workflow_dispatch:  # Manually trigger workflow
+
+jobs:
+  download_large_file:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true  # Enable Git LFS in Actions
+
+      - name: Install Git LFS
+        run: |
+          git lfs install
+
+      - name: Download File from External Link
+        run: |
+          curl -L -o Doraemon  S20E02 [RareToonsIndia].mkv "http://gfs204n110.userstorage.mega.co.nz/dl/fn9YrF9T-hMa7gKQoJUc3r1HBLM7KmLmP3rCS6iFU2BeAI5kOgIBGiKtka1gnrzWoV1NjB4oNOGQXJ8fK805zNh6VTZuHBISJmDIPZjs1KaJ-MuJRTuYabDhJblHVh6JfYovQZLdZ4YmW1woXiGzjzSX18T2LC7L-eJdF-VynOOE_yyTRpTOtvPaVpS6jxn2l-enRqcHCaWWuRHIkCq7Pk5tPXo0l53MwlWuTaqepzMA3X-UZTNILSIQsw"
+
+      - name: Track Large File in Git LFS
+        run: |
+          git lfs track "*.mp4"
+          git add .gitattributes input.mp4
+          git commit -m "Add large video file using Git LFS"
+
+      - name: Push File to GitHub LFS
+        run: |
+          git push origin main
