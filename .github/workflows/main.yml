@@ -26,29 +26,7 @@ jobs:
       - name: Run Sketch Effect Script
         run: python sketch_effect.py
 
-      - name: Upload Processed Video as Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: output-video
-          path: output_sketch.mp4
-
-       if __name__ == "__main__":
-    input_video = "input.mp4"
-    output_video = "output_sketch.mp4"
-
-    import os
-    if not os.path.exists(input_video):
-        print("ERROR: Input video not found!")
-        exit(1)
-
-    process_video(input_video, output_video)
-
-    if os.path.exists(output_video):
-        print("SUCCESS: Output video created successfully!")
-    else:
-        print("ERROR: Output video was not generated.")
-
-        - name: Check Output File
+      - name: Check Output File
         run: |
           if [ -f "output_sketch.mp4" ]; then
             echo "Output file exists."
@@ -61,4 +39,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: output-video
-          path: output_sketch.mp4
+          path: output_sketch.mp4          path: output_sketch.mp4
