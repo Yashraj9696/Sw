@@ -1,0 +1,47 @@
+name: Sketch Art Video Processing
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  process_video:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip  
+          pip install -r requirements.txt  
+          pip install opencv-python-headless numpy moviepy requests
+
+      - name: Download Video from URL
+        run: |
+          VIDEO_URL="http://103.171.175.27:8080/dl/67e954636867325c17c63a84"  
+          curl -L "$VIDEO_URL" -o input.mp4
+          if [ ! -s input.mp4 ]; then
+            echo "ERROR: Downloaded video is missing or empty!"
+            exit 1
+          fi
+
+      - name: Run Sketch Effect Script
+        run: python sketch_effect.py
+
+      - name: Check Output File
+        run: |
+          if [ ! -f "output_sketch.mp4" ]; then
+            echo "ERROR: No output video found!"
+            exit 1
+          fi
+
+      - name: Upload Processed Video as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: output-video
+          path: output_sketch.mp4
