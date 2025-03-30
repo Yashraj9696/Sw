@@ -16,9 +16,8 @@ jobs:
       - name: Install Dependencies  
         run: |  
           sudo apt update  
-          sudo apt install -y ffmpeg  
-          python -m pip install --upgrade pip  
-          pip install --user opencv-python-headless numpy  
+          sudo apt install -y ffmpeg libglib2.0-0  
+          pip install opencv-python-headless numpy  
 
       - name: Verify Uploaded Video  
         run: |  
@@ -34,7 +33,7 @@ jobs:
 
       - name: Run Sketch Effect Script  
         run: |  
-          python sketch.py output.mp4 processed.mp4  
+          xvfb-run --auto-servernum python sketch.py output.mp4 processed.mp4  
 
       - name: Check Processed Video  
         run: |  
