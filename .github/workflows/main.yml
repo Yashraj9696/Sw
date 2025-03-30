@@ -17,7 +17,8 @@ jobs:
         run: |  
           sudo apt update  
           sudo apt install -y ffmpeg  
-          pip install opencv-python-headless numpy  
+          python -m pip install --upgrade pip  
+          pip install --user opencv-python-headless numpy  
 
       - name: Verify Uploaded Video  
         run: |  
