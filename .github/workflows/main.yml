@@ -1,43 +1,59 @@
-name: Sketch Art Video Processing
+name: Process Video
 
-on: [push, pull_request, workflow_dispatch]
+on:  
+  push:  
+    branches: [ main ]  
+  workflow_dispatch:  
 
-jobs:
-  process_video:
-    runs-on: ubuntu-latest
+jobs:  
+  process_video:  
+    runs-on: ubuntu-latest  
 
-    steps:
-      - name: Checkout Repository
+    steps:  
+      - name: Checkout Repository  
         uses: actions/checkout@v4
 
-      - name: Set Up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.8'
+      - name: Install Dependencies  
+        run: |  
+          sudo apt update  
+          sudo apt install -y ffmpeg  
 
-      - name: Install Dependencies
-        run: |
-          pip install -r requirements.txt
+      - name: Verify Uploaded Video  
+        run: |  
+          if [ ! -s "input.mp4" ]; then  
+            echo "ERROR: Uploaded video is missing or empty!"  
+            exit 1  
+          fi  
+          file input.mp4  
 
-      - name: Use Uploaded Video
-        run: |
-          if [ ! -f "input.mp4" ]; then
-            echo "ERROR: input.mp4 not found in the repository!"
-            exit 1
-          fi
+      - name: Convert Video Format (if needed)  
+        run: |  
+          ffmpeg -i input.mp4 -c:v libx264 -preset fast -crf 23 -c:a aac -b:a 128k output.mp4  
 
-      - name: Run Sketch Effect Script
-        run: python sketch_effect.py
+      - name: Run Sketch Effect Script  
+        run: |  
+          python sketch.py output.mp4 processed.mp4  
 
-      - name: Check Output File
-        run: |
-          if [ ! -f "output_sketch.mp4" ]; then
-            echo "ERROR: No output video found!"
-            exit 1
-          fi
+      - name: Check Processed Video  
+        run: |  
+          if [ ! -s processed.mp4 ]; then  
+            echo "ERROR: Processed video is missing or empty!"  
+            exit 1  
+          fi  
 
-      - name: Upload Processed Video as Artifact
+      - name: Overlay Original Video with Transparency  
+        run: |  
+          ffmpeg -i processed.mp4 -i input.mp4 -filter_complex "[1:v]format=rgba,colorchannelmixer=aa=0.15[overlay];[0:v][overlay]overlay=W/2:H/2" -c:a copy final_output.mp4  
+
+      - name: Verify Final Output Video  
+        run: |  
+          if [ ! -s final_output.mp4 ]; then  
+            echo "ERROR: Final output video is missing or empty!"  
+            exit 1  
+          fi  
+
+      - name: Upload Final Video to GitHub Artifacts  
         uses: actions/upload-artifact@v4
-        with:
-          name: output-video
-          path: output_sketch.mp4
+        with:  
+          name: final-video  
+          path: final_output.mp4
