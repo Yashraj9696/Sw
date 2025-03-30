@@ -8,6 +8,12 @@ on:
 jobs:  
   process_video:  
     runs-on: ubuntu-latest  
+    - name: Install Dependencies  
+  run: |  
+    sudo apt update  
+    sudo apt install -y ffmpeg libglib2.0-0 python3-opencv  
+    pip install --upgrade pip  
+    pip install opencv-python-headless numpy moviepy
 
     steps:  
       - name: Checkout Repository  
