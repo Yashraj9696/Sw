@@ -1,52 +1,30 @@
 import cv2
 import numpy as np
-import sys
+from moviepy.editor import VideoFileClip
 
-# Check if correct arguments are passed
-if len(sys.argv) != 3:
-    print("Usage: python sketch.py <input_video> <output_video>")
-    sys.exit(1)
+def apply_sketch_effect(frame):
+    """Convert a frame to a pencil sketch."""
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # Convert to grayscale
+    inverted = cv2.bitwise_not(gray)  # Invert grayscale image
+    blurred = cv2.GaussianBlur(inverted, (21, 21), sigmaX=0, sigmaY=0)  # Apply Gaussian blur
+    inverted_blur = cv2.bitwise_not(blurred)
+    sketch = cv2.divide(gray, inverted_blur, scale=256.0)  # Blend the images
+    return cv2.cvtColor(sketch, cv2.COLOR_GRAY2BGR)  # Convert back to 3-channel format
 
-input_video = sys.argv[1]
-output_video = sys.argv[2]
+def process_video(input_path, output_path):
+    """Apply the sketch effect to a video."""
+    clip = VideoFileClip(input_path)
 
-# Open video file
-cap = cv2.VideoCapture(input_video)
-if not cap.isOpened():
-    print("Error: Could not open input video file.")
-    sys.exit(1)
+    def process_frame(frame):
+        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)  # Convert to OpenCV format
+        sketched_frame = apply_sketch_effect(frame)
+        return cv2.cvtColor(sketched_frame, cv2.COLOR_BGR2RGB)  # Convert back to RGB
 
-# Get video properties
-frame_width = int(cap.get(3))
-frame_height = int(cap.get(4))
-fps = int(cap.get(cv2.CAP_PROP_FPS))
+    processed_clip = clip.fl_image(process_frame)
+    processed_clip.write_videofile(output_path, codec="libx264", fps=clip.fps)
 
-# Define codec and create VideoWriter object
-fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-out = cv2.VideoWriter(output_video, fourcc, fps, (frame_width, frame_height))
-
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        break
-
-    # Convert to grayscale
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-    # Apply Gaussian Blur
-    blur = cv2.GaussianBlur(gray, (5, 5), 0)
-
-    # Detect edges using Canny
-    edges = cv2.Canny(blur, 30, 70)
-
-    # Convert edges to 3 channels
-    edges_colored = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
-
-    # Write frame to output video
-    out.write(edges_colored)
-
-# Release everything
-cap.release()
-out.release()
-cv2.destroyAllWindows()
-print("Processing complete! Output saved as:", output_video)
+if __name__ == "__main__":
+    input_video = "input.mp4"   # Change this to your input video file
+    output_video = "output_sketch.mp4"
+    
+    process_video(input_video, output_video)
