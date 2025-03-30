@@ -16,13 +16,16 @@ jobs:
       - name: Install Dependencies  
         run: |  
           sudo apt update  
-          sudo apt install -y ffmpeg libglib2.0-0  
-          pip install opencv-python-headless numpy  
+          sudo apt install -y ffmpeg wget  
 
-      - name: Verify Uploaded Video  
+      - name: Download Input Video  
         run: |  
-          if [ ! -s "input.mp4" ]; then  
-            echo "ERROR: Uploaded video is missing or empty!"  
+          wget -O "input.mp4" "http://103.171.175.27:8080/dl/67e950f36867325c17c63a6d"  
+
+      - name: Verify Downloaded Video  
+        run: |  
+          if [ ! -s input.mp4 ]; then  
+            echo "ERROR: Input video is missing or empty!"  
             exit 1  
           fi  
           file input.mp4  
@@ -33,28 +36,17 @@ jobs:
 
       - name: Run Sketch Effect Script  
         run: |  
-          xvfb-run --auto-servernum python sketch.py output.mp4 processed.mp4  
+          python sketch.py output.mp4 processed.mp4  
 
-      - name: Check Processed Video  
+      - name: Check Output File  
         run: |  
           if [ ! -s processed.mp4 ]; then  
             echo "ERROR: Processed video is missing or empty!"  
             exit 1  
           fi  
 
-      - name: Overlay Original Video with Transparency  
-        run: |  
-          ffmpeg -i processed.mp4 -i input.mp4 -filter_complex "[1:v]format=rgba,colorchannelmixer=aa=0.15[overlay];[0:v][overlay]overlay=W/2:H/2" -c:a copy final_output.mp4  
-
-      - name: Verify Final Output Video  
-        run: |  
-          if [ ! -s final_output.mp4 ]; then  
-            echo "ERROR: Final output video is missing or empty!"  
-            exit 1  
-          fi  
-
-      - name: Upload Final Video to GitHub Artifacts  
+      - name: Upload Processed Video to GitHub Artifacts  
         uses: actions/upload-artifact@v4
         with:  
-          name: final-video  
-          path: final_output.mp4
+          name: processed-video  
+          path: processed.mp4
