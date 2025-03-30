@@ -19,18 +19,19 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Download Input Video
+      - name: Use Uploaded Video
         run: |
-          curl -o input.mp4 https://example.com/path-to-your-video.mp4
+          if [ ! -f "input.mp4" ]; then
+            echo "ERROR: input.mp4 not found in the repository!"
+            exit 1
+          fi
 
       - name: Run Sketch Effect Script
         run: python sketch_effect.py
 
       - name: Check Output File
         run: |
-          if [ -f "output_sketch.mp4" ]; then
-            echo "Output file exists."
-          else
+          if [ ! -f "output_sketch.mp4" ]; then
             echo "ERROR: No output video found!"
             exit 1
           fi
