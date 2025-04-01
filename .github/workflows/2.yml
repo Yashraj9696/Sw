@@ -1,24 +1,3 @@
-Skip to content
-Navigation Menu
-Yashraj9696
-Sw
-
-Type / to search
-Code
-Issues
-Pull requests
-Actions
-Projects
-Wiki
-Security
-Insights
-Settings
-Sketch Art Video Processing
-Create 6.yml #1
-Jobs
-Run details
-Workflow file for this run
-.github/workflows/6.yml at c0f92d7
 name: Sketch Art Video Processing
 
 on: [push, pull_request, workflow_dispatch]
@@ -43,7 +22,7 @@ jobs:
           pip install opencv-python-headless numpy moviepy requests
       - name: Download Video from URL
         run: |
-          VIDEO_URL="https://dl.springsfern.in/play/1386449?hash=444d2c"  
+          VIDEO_URL="https://tgfiles.chsappz.com/download/9195878280/9944476896"  
           curl -L "$VIDEO_URL" -o input.mp4
           if [ ! -s input.mp4 ]; then
             echo "ERROR: Downloaded video is missing or empty!"
