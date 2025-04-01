@@ -8,21 +8,17 @@ on:
 jobs:  
   process_video:  
     runs-on: ubuntu-latest  
-    - name: Install Dependencies  
-  run: |  
-    sudo apt update  
-    sudo apt install -y ffmpeg libglib2.0-0 python3-opencv  
-    pip install --upgrade pip  
-    pip install opencv-python-headless numpy moviepy
 
     steps:  
       - name: Checkout Repository  
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4  
 
       - name: Install Dependencies  
         run: |  
           sudo apt update  
-          sudo apt install -y ffmpeg wget  
+          sudo apt install -y ffmpeg libglib2.0-0 python3-opencv  
+          pip install --upgrade pip  
+          pip install opencv-python-headless numpy moviepy  
 
       - name: Download Input Video  
         run: |  
@@ -52,7 +48,7 @@ jobs:
           fi  
 
       - name: Upload Processed Video to GitHub Artifacts  
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4  
         with:  
           name: processed-video  
           path: processed.mp4
