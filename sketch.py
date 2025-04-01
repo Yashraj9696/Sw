@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import os
 from moviepy.editor import VideoFileClip
 
 def apply_sketch_effect(frame):
@@ -13,6 +14,9 @@ def apply_sketch_effect(frame):
 
 def process_video(input_path, output_path):
     """Apply the sketch effect to a video."""
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Error: {input_path} not found!")
+
     clip = VideoFileClip(input_path)
 
     def process_frame(frame):
@@ -20,11 +24,11 @@ def process_video(input_path, output_path):
         sketched_frame = apply_sketch_effect(frame)
         return cv2.cvtColor(sketched_frame, cv2.COLOR_BGR2RGB)  # Convert back to RGB
 
-    processed_clip = clip.fl_image(process_frame)
+    processed_clip = clip.fl(lambda gf, t: process_frame(gf(t)))  # Optimized processing
     processed_clip.write_videofile(output_path, codec="libx264", fps=clip.fps)
 
 if __name__ == "__main__":
-    input_video = "input.mp4"   # Change this to your input video file
+    input_video = "input.mp4"
     output_video = "output_sketch.mp4"
-    
+
     process_video(input_video, output_video)
